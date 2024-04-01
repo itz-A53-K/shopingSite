@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+{% load static %}
+{% load cust_temp_function %}
+{% load humanize %}
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online shoping site : {% block title %}{% endblock %} </title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="{% static 'userModule/css/base.css' %} ">
+  <link rel="stylesheet" href="{% static 'userModule/css/loadingScreen.css' %} ">
+
+  {% block cssLink %}{% endblock %}
+  <style>
+    {% block css %}{% endblock %}
+
+    .dropdown_item {
+      text-transform: capitalize;
+    }
+
+    .dropdown_item:hover {
+      background: var(--bs-gray-200);
+
+    }
+  </style>
+</head>
+
+<body>
+
+  {% comment %} <section id="offline_container" class="offline_container d-none">
+    <div class="text t-1">
+      <h1>Oops!...</h1>
+    </div>
+    <div class="imgDiv m-2">
+      <img src="{% static 'userModule/img/network error.jpg' %}" alt="" srcset="">
+    </div>
+    <div class="text t-2">
+      <h4 class="">Network Error.</h4>
+      <p class="text-dark">Please connect to the internet.</p>
+    </div>
+  </section> {% endcomment %}
+
+  <section class="sticky-top" style="box-shadow:0px 2px 10px var(--bs-primary-bg-subtle); z-index: 1024;">
+    <nav class="navbar navbar-expand-lg navbar-primary-subtle bg-primary-subtle">
+      <div class="container">
+        <a class="navbar-brand" href="/">ShopingSite</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-between align-items-center" id="navbarSupportedContent">
+          <ul class="navbar-nav mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/">Home</a>
+            </li>
+            {% comment %} <li class="nav-item">
+              <a class="nav-link" href="#">Link</a>
+            </li> {% endcomment %}
+
+          </ul>
+          <div>
+            <form class="d-lg-flex me-5" role="search">
+              <div class="input-group">
+                <input aria-describedby="navSrcBox" class="form-control border-success border-2 border-opacity-50"
+                  type="search" placeholder="Search" aria-label="Search" style="width:30rem;">
+                <button class="input-group-text bg-info border-success border-2 border-opacity-50" id="navSrcBox"
+                  type="search"><i class="bi bi-search"></i></button>
+              </div>
+            </form>
+          </div>
+          <div class="nav-item dropdown" style="text-align:right">
+            {% if request.user.is_authenticated %}
+            Hello, {{request.user.name|truncatechars:25}}<br>
+            {% endif %}
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="fw-medium">Account</span>
+            </a>
+            <ul class="dropdown-menu" style="width:15rem; left:-5rem;">
+              {% if not request.user.is_authenticated %}
+              <div class="text-center">
+                <a href="/signIn/" class="btn btn-sm btn-outline-warning w-50">Login</a>
+                <p>Don't have account? <a href="/register/"
+                    class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover link-hover-warning">Register</a>
+                </p>
+              </div>
+              {% endif %}
+              <li><a class="dropdown_item" href="/account/ ">My profile</a></li>
+              <li><a class="dropdown_item" href="/orders/?order_status=All">My orders</a></li>
+              {% if request.user.is_authenticated %}
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li class="text-center"><button class=" btn btn-info logout">Logout</button></li>{% endif %}
+            </ul>
+          </div>
+          <div>
+            <a href="/cart/" class="btn btn-dark ">
+              <span>Cart</span>
+              <span class=""><i class="bi bi-cart3"></i></span>
+              {% comment %} {% if request.user.is_authenticated %} {% endcomment %}
+              <span
+                class="position-absolute translate-middle bg-danger border border-light rounded-circle ms-3 text-light"
+                style="width: 30px; height: 30px; object-fit: fill;">
+                <span id="cartCount">{{cartCount}}</span>
+              </span>
+              {% comment %} {% endif %} {% endcomment %}
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom border-dark-subtle">
+      <div class="container-fluid justify-content-evenly">
+        {% for cat, catVal in nav2_items.items %}
+        {% if cat == "Mobile" %}
+        <div class="cust_dropdown">
+          <a href="" class="dropdown_btn text-capitalize">{{cat}}</a>
+        </div>
+        {% else %}
+
+        <div class="cust_dropdown {{ nav2_items|length|add_dropLeft_class:forloop.counter }}">
+          <span class="dropdown_btn text-capitalize">{{cat}}</span>
+
+          <div class="dropdown_body">
+            {% for key, val in catVal.items %}
+
+            <div class="with_subDrop">
+              <span class="dropdown_item">{{key}}<span class="indArrow">></span></span>
+              <div class="sub_dropdown">
+                <a href="{{val.0.FK_subcat_type.id|subCat_type_href:key}}" class="sub_dropdown_item">All</a>
+
+                {% for i in val %}
+                <a href="{{i.id|subCat_href:i.subCat_name}}" class="sub_dropdown_item">{{i.subCat_name}}</a>
+                {% endfor %}
+
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+      </div>
+    </nav>
+  </section>
+
+  <section class="message position-fixed" id="myAlert">
+    {% for msg in messages %}
+    <div class="msgDiv {% if msg.tags %}{{msg.tags}} msgSound{% endif %}">
+      <i class="bi bi-exclamation-circle-fill" style="display:none;"></i>
+      <i class="bi bi-check-circle-fill" style="display:none;"></i>
+      <span class="">{{msg}}</span>
+    </div>
+    {% endfor %}
+    <div class="msgDiv d-none">
+      <i class="bi bi-exclamation-circle-fill" style="display:none;"></i>
+      <i class="bi bi-check-circle-fill" style="display:none;"></i>
+      <span class=""></span>
+    </div>
+  </section>
+
+  <section id="offline_container" class=" d-none">
+    <div class="text t-1">
+      <h1 class="">Oops!...</h1>
+    </div>
+    <div class="imgDiv">
+      <img src="{% static 'userModule/img/network error.jpg' %}" alt="" srcset="">
+    </div>
+    <div class="text t-2">
+      <h4 class="">Network Error.</h4>
+      <p class="">Please connect to the internet.</p>
+    </div>
+  </section>
+  <section class="go_top">
+    <button> <i class="bi bi-chevron-up fs-5"></i></button>
+  </section>
+
+  {% block body %}{% endblock %}
+
+  <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+  {% block JSLink %}{% endblock %}
+  {% block JS %}{% endblock %}
+  <script>
+    /*window.addEventListener("load", function() {
+      this.setTimeout(function(){
+          document.getElementById("loadingScreen").style.display = "none";
+      }, 300)
+  });*/
+
+    window.onscroll = function () {
+      scrollFunction();
+    };
+
+    function scrollFunction() {
+      if (
+        $(document).scrollTop() > 350
+      ) {
+        $(".go_top button").slideDown("slow")
+      }
+      else {
+        $(".go_top button").slideUp("slow")
+      }
+
+    }
+    $(".go_top").click(function () {
+      $("html, body").animate({ scrollTop: 0 });
+    })
+
+    window.addEventListener("offline", function () {
+      $("#offline_container").removeClass("d-none")
+    });
+    window.addEventListener("online", function () {
+      $("#offline_container").addClass("d-none")
+    });
+
+
+    $(".dropdown_item").children(".indArrow").css("visibility", "hidden")
+    $(".cust_dropdown").hover(
+      function () {
+        $(this).children('.dropdown_body').css("display", "flex")
+        $(this).children(".dropdown_btn").css("color", "var(--bs-primary)")
+
+      },
+      function () {
+        $(this).children(".dropdown_btn").css("color", "")
+        $(this).children('.dropdown_body').css("display", "none")
+      }
+    )
+    $(".cust_dropdown .with_subDrop").hover(
+      function () {
+        $(this).children(".dropdown_item").css("color", "var(--bs-primary)")
+        $(this).children(".dropdown_item").children(".indArrow").css("visibility", "")
+        $(this).children('.sub_dropdown').css("display", "flex")
+
+        dropdown_Body = $(this).parent()
+        sub_dropdown = $(this).children().eq(1)
+
+        if (dropdown_Body.height() > sub_dropdown.height()) {
+          sub_dropdown.height(dropdown_Body.height())
+        }
+        else {
+          dropdown_Body.height(sub_dropdown.height())
+        }
+      },
+      function () {
+        $(this).parent().height("initial")
+
+        $(this).children(".dropdown_item").children(".indArrow").css("visibility", "hidden")
+        $(this).children(".dropdown_item").css("color", "")
+        $(this).children('.sub_dropdown').css("display", "")
+      },
+    )
+    function errRmv() {
+      setTimeout(() => {
+        $(".err").text("")
+      }, 6000);
+    }
+    errRmv()
+
+    closeAlert()
+
+    function closeAlert() {
+      div = $('#myAlert .msgDiv')
+      if (div.hasClass("msgSound")) {
+        var sound = new Audio('/static/userModule/sound/message sound.mp3');
+        sound.play();
+      }
+
+      setTimeout(() => {
+        if (div.hasClass('success')) {
+          div.removeClass("success")
+        }
+        else {
+          div.removeClass("error")
+        }
+        div.removeClass("msgSound").addClass("d-none")
+        div.children("span").text("")
+
+      }, 6800);
+    }
+
+    function setAlert(tag, msg) {
+      div = $('#myAlert .msgDiv')
+
+      div.addClass("msgSound " + tag).removeClass("d-none")
+      div.children("span").text(msg)
+      closeAlert()
+    }
+
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    $(".shareBtn").click(function () {
+      var copyText = "http://127.0.0.1:8000" + $(this).attr("lnk");
+
+      navigator.clipboard.writeText(copyText);
+      setAlert("success", "Link Copied Successfully.")
+    })
+  </script>
+
+  <script>
+
+    //carousel control btn show/hide
+    for (let i = 0; i < $(".carouselHN").length; i++) {
+      carouselHN = $(".carouselHN").eq(i)
+      carouselHN.children('.carousel-control-prev').hide()
+
+      if (carouselHN.children(".carousel-inner").children(".carousel-item").length == 1) {
+        carouselHN.children('.carousel-control-next').hide()
+      }
+    }
+
+    $('.carouselHN').on('slide.bs.carousel', function () {
+      setTimeout(() => {
+        checkitem($(this).attr("id"))
+      }, 620);
+    });
+    {% comment %} $this = ${ ".carousel" } {% endcomment %}
+    function checkitem(carousel_id) {
+
+      carousel_id = $("#" + carousel_id)
+
+      first_carousel_item = carousel_id.children('.carousel-inner').children('.carousel-item:first')
+      last_carousel_item = carousel_id.children('.carousel-inner').children('.carousel-item:last')
+
+      if (first_carousel_item.hasClass('active')) {
+        carousel_id.children('.carousel-control-prev').hide();
+      }
+      else {
+        carousel_id.children('.carousel-control-prev').show();
+
+      }
+      if (last_carousel_item.hasClass('active')) {
+        carousel_id.children('.carousel-control-next').hide();
+      }
+      else {
+        carousel_id.children('.carousel-control-next').show();
+
+      }
+    }
+
+    $(".logout").click(function () {
+      if (confirm('Are you sure you want to logout?')) {
+        location.href = "/logout"
+      }
+    })
+  </script>
+</body>
+
+</html>

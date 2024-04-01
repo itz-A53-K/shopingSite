@@ -1,0 +1,214 @@
+{% extends 'userMOdule/base.html' %}
+{% load humanize %}
+
+{% load static %}
+{% load cust_temp_function %}
+
+{% block css %}
+.productLink .imgDiv{
+height:8.5rem;
+}
+.actions a:hover{
+text-decoration: underline;
+}
+.breadcrumb-item a{
+color: var(--bs-secondary) !important;
+}
+.breadcrumb-item a:hover{
+color: var(--bs-dark) !important;
+}
+{% endblock css %}
+{% block body %}
+
+
+<section class="cartSec d-lg-flex container-xxl p-0 flex-wrap my-lg-4">
+   <div class="left w-75 bg-white p-sm-4">
+      <div class="mb-lg-4">
+         <h3>Shopping Cart</h3>
+      </div>
+      <div class="deviderLine-0"></div>
+      <div class="cartItems ">
+         {% if cartObj|length != 0 %}
+         {% for item in cartObj %}
+         <div class="objItem">
+            <div class="card mb-4 productLink border-0" style="height:11rem;" title="{{i.FK_product.name}}">
+               <div class="row g-0 ">
+                  <a href="{{item.FK_product.id|prod_href:item.FK_product.name}}" class="col-md-3 imgDiv">
+                     <img src="/media/{{item.FK_product.image}}" class="img-fluid rounded-start "
+                        alt="{{item.name}} Image">
+                  </a>
+                  <div class="col-md-7">
+                     <div class="card-body py-lg-1 h-100">
+                        <div class="prod_name">
+                           <span class="fw-medium text-secondary">{{item.FK_product.brand_name}}</span>
+                           <a href="{{item.FK_product.id|prod_href:item.FK_product.name}}">
+                              <h4 class="card-title fs-5">{{item.FK_product.name|truncatewords:20}}</h4>
+                           </a>
+                        </div>
+                        <div class="">
+                           {% if item.FK_product.quantity_available != 0 %}
+                           <p class="m-0">
+                              <span class="text-success">In stock</span>
+                           </p>
+                           {% else %}
+                           <p class="m-0">
+                              <span class="text-danger">Out of stock</span>
+                           </p>
+                           {% endif %}
+                        </div>
+                        <div class="">
+                           {% if item.FK_product.discount_parcent|off_price:item.FK_product.price > 1000 %}
+                           <p class="m-0">
+                              <span class="">FREE Delivery </span>
+                           </p>
+                           {% endif %}
+                        </div>
+                        <div class="actions mt-3">
+                           <nav style="--bs-breadcrumb-divider: '|';" aria-label="breadcrumb">
+                              <ol class="breadcrumb fw-medium">
+                                 <li class="breadcrumb-item ">
+                                    <a class=" mx-2 removeItem" p_id="{{item.FK_product.id}}" c_id="{{item.id}}">Remove
+                                       item</a>
+                                 </li>
+
+                                 <li class="breadcrumb-item">
+
+                                    <a class="mx-2 shareBtn" data-bs-toggle="tooltip" data-bs-placement="top"
+                                       data-bs-title="Click to copy link"
+                                       lnk="{{item.FK_product.id|prod_href:item.FK_product.name}}">
+                                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                          class="Kj-yxs me-2">
+                                          <path
+                                             d="M14.78 5.883L9.032 0v3.362C3.284 4.202.822 8.404 0 12.606 2.053 9.666 4.927 8.32 9.032 8.32v3.446l5.748-5.883z"
+                                             class="_2bvlkb" fill="#c2c2c2" fill-rule="evenodd"></path>
+                                       </svg>Share
+                                    </a>
+                                 </li>
+                              </ol>
+                           </nav>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-md-2 ">
+                     {% comment %} d-flex flex-column justify-content-center {% endcomment %}
+                     <div class="my-4">
+
+                        {% if item.FK_product.discount_parcent != 0 %}
+                        <p class="m-0">
+                           <span class="fs-5 fw-semibold" >₹{{item.FK_product.discount_parcent|off_price:item.FK_product.price|intcomma }}</span>
+                        </p> 
+                        <p>                      
+                           <span class="text-decoration-line-through">₹{{item.FK_product.price|floatformat:0|intcomma}}</span>
+                           
+                           <span class="text-success opacity-1 fw-medium ">{{item.FK_product.discount_parcent}}% off</span>
+                        </p>
+                        {% else %}
+                        <p class="m-0">
+                           <span class="fs-5 fw-medium">&nbsp;₹ {{item.FK_product.price|floatformat:0|intcomma }}</span>
+                        </p>
+                        {% endif %}
+
+
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="deviderLine-2 opacity-50"></div>
+         {% endfor %}
+         {% else %}
+         <div class="emptyCartdiv d-flex flex-column align-items-lg-center justify-content-lg-center text-center"
+            style="height:10rem;">
+            <div class="head fw-bold">
+               <h5 class="text-danger-emphasis">Opps !! Your cart is empty 😥</h5>
+               <p class="fw-medium">Explore our wide selection and find something you like 😃</p>
+               <a href="/" class="btn btn-outline-dark">Go Home</a>
+            </div>
+         </div>
+         {% endif %}
+      </div>
+      <div class="total text-lg-end fs-4 me-3">
+         Subtotal({{cartObj|length}} item{{ cartObj|length|pluralize }}): <span
+            class="fw-semibold">₹{{amt_aft_disc|floatformat:0|intcomma}}</span>
+      </div>
+
+   </div>
+   <div class="right w-25">
+      <div class="sticky-lg-top mx-lg-3 bg-white py-sm-4 px-sm-2" style="z-index: 100;">
+         <div>
+            <h6 class="text-secondary fw-semibold">PRICE DETAILS</h6>
+         </div>
+         <div class="deviderLine-1 my-3"></div>
+
+         <table class="mx-md-auto" style="width:85%">
+            <tbody>
+               <tr style="height:3rem;">
+                  <td>MRP ({{cartObj|length}} item{{ cartObj|length|pluralize }})</td>
+                  <td class="" style="text-align:right;">₹{{total_Amt|floatformat:0|intcomma}}</td>
+               </tr>
+               <tr style="height:3rem;">
+                  <td>Total Discount</td>
+                  <td class="text-success" style="text-align:right;">-₹{{total_disc|floatformat:0|intcomma}}</td>
+               </tr>
+            </tbody>
+         </table>
+         <div class="deviderLine-2 my-2 opacity-50"></div>
+         <table class="mx-md-auto" style="width:85%">
+            <tbody>
+               <tr class="fs-5">
+                  <th>Total Amount</th>
+                  <td class="fw-medium" style="text-align:right;">₹{{amt_aft_disc|floatformat:0|intcomma}}</td>
+               </tr>
+            </tbody>
+         </table>
+         <div class="deviderLine-2 my-2"></div>
+         <div class=" text-center mt-4">
+            <button class="cust_btn mx-md-auto" {% if cartObj|length == 0 %}
+            diabled
+            {% endif %}> PLACE ORDER </button>
+         </div>
+      </div>
+   </div>
+</section>
+<form action="/removeFrm_cart/" id="rmv_cart_itm" method="post">
+   {% csrf_token %}
+   <input type="hidden" name="c_id" id="c_id_inp">
+</form>
+
+{% endblock %}
+
+{% block JS %}
+<script>
+$(".removeItem").click( function () {
+   console.log($(this).attr("p_id"), $(this).attr("c_id"))
+   if (confirm("Are you sure you want to remove this item?")) {
+   
+      $.ajax({
+         type: "POST",
+         url: "/removeFrm_cart/",
+         data: {
+            c_id: $(this).attr("c_id"),
+            csrfmiddlewaretoken: "{{ csrf_token }}",
+         },
+         success: function(data){
+            console.log(data)
+            if (data.success == true) {
+               location.reload()            
+            }
+            else{
+               if( data.msg == "unauth"){
+                  setAlert("error","Please Login first !!")
+                  location.href= "/signIn/"
+               }
+               else{
+                  setAlert("error",data.msg)
+               }
+            }
+
+         }
+      })
+         
+   }
+})
+</script>
+{% endblock JS %}

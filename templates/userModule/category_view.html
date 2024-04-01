@@ -1,0 +1,210 @@
+{% extends 'userModule/base.html' %}
+{% load cust_temp_function %}
+{% load static %}
+{% load humanize %}
+
+{% block css %}
+     .accordion-button:not(.collapsed) {
+          background: none !important;
+          box-shadow: none;
+     }
+     .accordion-button:focus {
+          box-shadow: none;
+     }
+
+     .deviderLine-2{
+          margin:.2rem 0;
+     }
+     .checkBoxDiv label{
+          cursor:pointer;
+          user-select:none;
+     }
+     .typeLink {
+          border-radius:50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 13rem;
+          width: 13rem;
+          animation: ch-bg 2s linear 1s infinite;
+     }
+     @keyframes ch-bg {
+          0% {
+               background: linear-gradient(to right, blueviolet, rgb(255, 47, 0));
+          }
+          100% {
+               background: linear-gradient(to left, blueviolet, rgb(255, 47, 0));
+          }
+     }   
+     .typeLink .imgDiv_inner{
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height:100%;
+          width:97%;
+          background: #fff;     
+          border-radius:50%;
+     }
+     .typeLink .imgDiv_inner img{
+          width: fit-content !important;
+          height: fit-content !important;
+          max-width: 80% !important;
+          max-height: 80% !important;
+          border-radius: 25%;
+     }
+
+     .subCat_li:hover{
+          color: orange;
+     }
+{% endblock %}
+
+{% block body %}
+
+<section class="container-fluid p-0 d-flex justify-content-between">
+     <section class="filterSec m-2 rounded bg-light " style="width:15%">
+          <div class="m-2 d-flex flex-column">
+
+               <span class="title">Filters</span>
+               <span class="deviderLine-0"></span>
+               <div class="category m-2">
+                    <h6>CATEGORIES</h6>
+                    <nav style="--bs-breadcrumb-divider: '<';" aria-label="breadcrumb">
+                         <ol class="breadcrumb flex-column">
+
+                              <li class="breadcrumb-item"></li>
+                              
+                              <li class="breadcrumb-item"><a href="/">Home</a></li>
+                              
+                              <li class="active"><a href="/">{{category.cat_name}}</a>
+                              </li>
+                              
+                              <ol class="ms-5 my-2 breadcrumb flex-column">
+                                   {% for i in all_subCat_type_under_cat %}
+                                   <a href="{{i.id|subCat_type_href:i.type_name}}">
+                                        <li class="subCat_li" style="padding: 2px 0;">{{i.type_name}}</li>
+                                   </a>
+                                   {% endfor %}
+                              </ol>
+
+                         </ol>
+                    </nav>
+               </div>
+               <span class="deviderLine-2"></span>
+
+               <div class="filters">
+                    <div class="accordion d-flex flex-column" id="accordion">
+                         {% for key,value in filters.items %}
+                         <div class="accordion-item" style="border: none;">
+                              <h2 class="accordion-header">
+                                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapse{{forloop.counter}}" aria-expanded="false"
+                                        aria-controls="collapse{{forloop.counter}}">
+                                        {{key|upper}}
+                                   </button>
+                              </h2>
+                              <div id="collapse{{forloop.counter}}" class="accordion-collapse collapse"
+                                   data-bs-parent="#accordion">
+                                   <div class="accordion-body m-2 ms-5 p-0">
+                                        {% comment %} {{value|length}} {% endcomment %}
+                                        {% for i in value %}
+                                        <div class="checkBoxDiv mb-2">
+                                             <input type="checkbox" name="brand{{forloop.counter}}"
+                                                  id="brand{{forloop.counter}}">
+                                             <label for="brand{{forloop.counter}}" class="ms-1">{{i|title}}</label>
+                                        </div>
+
+                                        {% endfor %}
+                                   </div>
+                              </div>
+                         </div>
+                         <span class="deviderLine-2"></span>
+                         {% endfor %}
+                    </div>
+               </div>
+          </div>
+     </section>
+     <section class="mainBody m-2 rounded bg-light p-2 " style="width:85%">
+          <div class="text-center m-4">
+               <h3>{{subCat_type.type_name}}</h3>
+          </div>
+          <div class="deviderLine-1"></div>
+          <div class="all_subCats">
+               <div class="flex-wrap row mx-1 my-3 justify-content-center">
+                    {% for i in all_subCat_type_under_cat|slice:":8" %}
+                    <div class="col-auto p-0 d-flex justify-content-center">
+                         <div class=" m-2 d-flex flex-column align-items-center" style="">
+                              <a href="{{i.id|subCat_type_href:i.type_name}}" class="typeLink ">
+                                   <div class="imgDiv_inner">
+                                        <img src="/media/{{i|get_img}}" alt="" srcset="" class="">
+                                   </div>
+                              </a>
+                              <div class="text-center p-1 me-2 text-break">
+                                   <h5>{{i.type_name}}</h5>
+                              </div>                              
+                         </div>
+                    </div>
+                    {% endfor %}
+               </div>
+          </div>
+          
+          <div class="deviderLine-1"></div>
+          <section class="my-4">
+               {% for key, val in all_subCategory.items %}
+                    <section class="slider">
+                    <h3>Blockbuster deals on {{key}} | Upto 90% off
+                    </h3>
+                    
+                    <div id="menJeans_carousel" class="mt-3 carousel slide carouselHN" data-bs-touch="true"  data-bs-ride="carousel">
+                        <div class="carousel-inner d-lg-flex " style="height:14rem;">
+                            <div class="carousel-item active">
+                                <div class="d-lg-flex text-center h-100">
+                                   
+                                {% for item in val%}
+                                    <a href="{{item.id|subCat_href:item.subCat_name}}" class="card border-0 mx-2 text-decoration-none productLink" style="width: 12rem;" title="{{item.name|truncatewords:8}}">
+                                        <div class="imgDiv h-75">
+                                            <img src="/media/{{item.image}}" class="card-img-top rounded-0" alt="{{item.subCat_name}}"  >
+                                        </div>
+                                        <div class="card-body">
+                                            <h6 class="card-text category">{{item.subCat_name}} </h6>
+                                        </div>
+                                    </a>
+                                    {% if forloop.counter|divisibleby:8 and forloop.counter > 0 and not forloop.last%}
+                                </div>
+                            </div>
+                                    
+                            <div class="carousel-item">
+                                <div class="d-lg-flex text-center h-100">
+                                        {%endif%}
+                                {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <button class="bg-dark my-auto carousel-control-prev" type="button" data-bs-target="#menJeans_carousel" data-bs-slide="prev" style="width:3%;height:5rem; opacity:1;">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="bg-dark my-auto carousel-control-next" type="button" data-bs-target="#menJeans_carousel" data-bs-slide="next" style="width:3%;height:5rem; opacity:1;">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>   
+                </section>
+                
+               {% endfor %}
+          </section>
+
+     </section>
+</section>
+<div class=""></div>
+
+{% endblock %}
+
+{% block JS %}
+<script>
+     if ($(".accordion-button").attr("aria-controls") == "collapse1") {
+          accBtn_0 = $(".accordion-button").eq(0)
+          accBtn_0.removeClass("collapsed").attr("aria-expanded", "true")
+          accBtn_0.parent().parent().children().eq(1).addClass("show")
+     }
+</script>
+{% endblock %}

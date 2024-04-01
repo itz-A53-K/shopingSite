@@ -1,0 +1,494 @@
+{% extends 'userModule/base.html' %}
+{% load cust_temp_function %}
+{% load static %}
+{% load humanize %}
+
+{% block css %}
+.accordion-button:not(.collapsed) {
+background: none !important;
+box-shadow: none;
+}
+.accordion-button:focus {
+box-shadow: none;
+}
+
+.deviderLine-2{
+margin:.2rem 0;
+}
+.checkBoxDiv label{
+cursor:pointer;
+user-select:none;
+}
+.productLink .imgDiv{
+height:14rem;
+}
+.acViewLeft_link{
+cursor: pointer;
+}
+.leftSection .fs-6{
+font-size: 1.1em !important;
+text-transform: uppercase;
+font-weight: 600;
+color: var(--bs-secondary);
+margin: 0 1.5rem;
+}
+
+.acViewLeft_link.active{
+color: var(--bs-primary) !important;
+background: rgba(var(--bs-primary-rgb), 0.05) !important;
+font-weight: 600 !important;
+}
+.form input, .form .inpLike{
+border: 1px solid rgba(45, 44, 44, 0.76);
+font-size:1.1rem;
+font-weight:400;
+color:rgb(46, 43, 43);
+font-family: Roboto,Arial,sans-serif;
+}
+
+.form input:disabled, .form .inpLike{
+background-color: #fafafa;
+font-size:1rem;
+color:#6b6a6a;
+cursor: not-allowed;
+}
+.form input:disabled~label{
+     display: none;
+}
+input:disabled{
+     cursor: not-allowed;
+}
+
+{% endblock %}
+
+{% block title %}{{active}}{% endblock %}
+
+{% block body %}
+
+<nav class="mt-2" style="--bs-breadcrumb-divider: '>'; font-size: .9rem;" aria-label="breadcrumb">
+     <ol class="breadcrumb ms-4 mb-0">
+
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+          <li class="breadcrumb-item active ms-0" aria-current="page">Account</li>
+     </ol>
+</nav>
+<section class="container-fluid p-0 d-flex justify-content-between user-select-none">
+     <section class=" m-2 rounded bg-light leftSection" style="width:21%; height:fit-content;">
+          <div class="m-2 d-flex flex-column">
+
+               <span class="greeting d-flex px-3">
+                    <div class="prof_img me-3">
+                         <i class="bi bi-person-circle fs-1"></i>
+                    </div>
+                    <div class="d-flex flex-column justify-content-center">
+                         <small style="font-size: 13px;">Hello,</small>
+                         <p class="fw-bold m-0">{{request.user.name}}</p>
+                    </div>
+               </span>
+               <span class="deviderLine-0 mb-1"></span>
+
+               <div class=" my-2 ">
+                    <div class="py-2 ">
+                         <a href="/orders/?order_status=All"
+                              class="acViewLeft_link hov_blue fs-6 d-flex justify-content-between ">
+                              <span>my orders</span> <span><i class="bi bi-chevron-right"></i></span> </a>
+                    </div>
+                    <span class="deviderLine-2 opacity-50"></span>
+                    <div class="py-2 ">
+                         <span class="fs-6 "><i class="bi bi-person-fill me-2 text-primary fs-4"></i>account
+                              settings</span>
+
+                         <div class="sub_links  d-flex flex-column mt-3">
+                              <a href="/account/"
+                                   class="acViewLeft_link hov_blue text-dark text-capitalize ps-5 py-2 mb-2 "
+                                   id="profile">profile information</a>
+
+                              <a href="/account/addressBook"
+                                   class="acViewLeft_link hov_blue text-dark text-capitalize ps-5 py-2 mb-2"
+                                   id="addressBook">my addresses</a>
+
+                         </div>
+                    </div>
+                    <span class="deviderLine-2 opacity-50"></span>
+
+               </div>
+               <span class="deviderLine-1 mb-0"></span>
+               <div class=" my-2">
+                    <div class="fs-6 text-capitalize py-2 logout acViewLeft_link hov_blue">
+                         <span class="me-2">
+                              <svg width="24" height="24" class="" viewBox="0 0 24 24"
+                                   xmlns="http://www.w3.org/2000/svg" style="color:tomato">
+                                   <path fill=" var(--bs-danger) " stroke-width="0.3" stroke="var(--bs-danger)"
+                                        d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z">
+                                   </path>
+                              </svg>
+                         </span>
+                         <span>Logout</span>
+                    </div>
+               </div>
+          </div>
+     </section>
+
+
+     <section class="mainBody m-2 rounded bg-light " style="width:79%">
+          <div class="m-4">
+               {% if active == "profile" %}
+               <div>
+                    <div class="d-flex  align-items-center">
+                         <h4>Personal Information </h4>
+                         <a class="text-primary fw-medium ms-4" id="edit_PInf">Edit</a>
+                         <a class="text-primary fw-medium ms-4 d-none" id="cancel_PInf">Cancel</a>
+                    </div>
+
+                    <form class="m-4 w-50 form" id="info_frm" action="/account/" method="POST">
+                         {% csrf_token %}
+                         <input type="hidden" name="frm" value="info_frm">
+                         <div class="form-floating mb-3">
+
+                              <input type="text" class="form-control info_box" id="name" name="name"
+                                   value="{{dataFor_temp.name}}" placeholder="Full Name" maxlength="90"
+                                   autocomplete="off" disabled required>
+
+                              <label for="name">Full Name</label>
+                         </div>
+                         <h5 class="mt-5 mb-3">Mobile Number</h5>
+                         <div class="form-floating mb-3">
+
+                              <input type="tel" class="form-control" id="ph_no" name="ph_no"
+                                   value="{{dataFor_temp.ph_No}}" placeholder="Mobile Number" autocomplete="off"
+                                   disabled required>
+
+                              <label for="ph_no">Mobile Number</label>
+                         </div>
+                         <button type="submit" class="btn btn-primary d-none" id="info_frm_Sub">Save Changes</button>
+
+                    </form>
+               </div>
+               <div>
+
+                    <div class="d-flex  align-items-center mt-5">
+                         <h4>Account Information </h4>
+                         <a class="text-primary fw-medium ms-4" id="edit_ac_Inf">Change Password</a>
+                         <a class="text-primary fw-medium ms-4 d-none" id="cancel_ac_Inf">Cancel</a>
+                    </div>
+
+                    <form class="m-4 w-50 form" id="ac_frm" action="/account/" method="POST">
+                         {% csrf_token %}
+                         <input type="hidden" name="frm" value="ac_frm">
+
+                         <h5 class="mt-2 mb-3">Email Address</h5>
+                         <div class="form-floating mb-3">
+                              <input class="form-control" id="email" name="email" value="{{dataFor_temp.email}}"
+                                   disabled required>
+                         </div>
+                         <div class="d-none" id="passDiv">
+                              <h5 class="mt-4 mb-3">Current Password</h5>
+                              <div class="form-floating mb-3">
+
+                                   <input type="password" class="form-control" id="cur_pass" name="cur_pass"
+                                        placeholder="Enter Current Password" required>
+
+                                   <label for="cur_pass">Enter Current Password</label>
+                              </div>
+
+                              <h5 class="mt-4 mb-3">New Password</h5>
+                              <div class="form-floating mb-3 ">
+
+                                   <input type="password" class="form-control" id="new_pass" name="new_pass"
+                                        minlength="6" maxlength="25" placeholder="Enter New Password" required>
+
+                                   <label for="new_pass">Enter New Password </label>
+                              </div>
+                              <button type="submit" class="btn btn-primary" id="ac_frm_Sub">Save Changes</button>
+                         </div>
+
+                    </form>
+               </div>
+
+
+               {% elif active == "addressBook" %}
+
+               <div class="row justify-content-around m-2">
+                    <div class="my-4">
+                         <button class=" btn border-1 border-dark rounded-0 text-primary fw-medium"
+                              id="active_add_Address"><i class="bi bi-plus-lg"></i> Add New Address</button>
+
+                         <form class="address_frm m-3 d-none " method="post" action="/account/addressBook/"
+                              id="address_frm">
+                              <h3 class="fw-medium text-dark mb-4" id="addr_head_Text">Add New Address</h3>
+                              {% csrf_token %}
+
+                              <input type="hidden" id="addr_frm_use" name="addr_frm_use" value="add_n_addr">
+                              <input type="hidden" id="addr_id" name="addr_id" value="">
+
+                              <div class="row">
+                                   <div class="col">
+                                        <div class=" form-floating mb-3">
+                                             <input type="text" class="form-control rounded-0" id="name_add"
+                                                  name="name_add" value="{{dataFor_temp.name}}" placeholder="Full Name"
+                                                  maxlength="90" autocomplete="off" required>
+
+                                             <label for="name_add">Full Name</label>
+                                        </div>
+                                   </div>
+                                   <div class="col">
+                                        <div class=" form-floating mb-3">
+                                             <input type="number" class="form-control rounded-0" id="ph_add"
+                                                  name="ph_add" value="{{dataFor_temp.name}}"
+                                                  placeholder="10 digit Phone Number" autocomplete="off" required>
+
+                                             <label for="ph_add">10 digit Phone Number</label>
+                                        </div>
+                                   </div>
+                              </div>
+
+                              <div class="row">
+                                   <div class="col">
+                                        <div class=" form-floating mb-3">
+                                             <input type="number" class="form-control rounded-0" id="pincode_add"
+                                                  name="pincode_add" value="{{dataFor_temp.name}}" placeholder="Pincode"
+                                                  maxlength="6" autocomplete="off" required>
+
+                                             <label for="pincode_add">Pincode</label>
+                                        </div>
+                                   </div>
+                                   <div class="col">
+                                        <div class=" form-floating mb-3">
+                                             <input type="tel" class="form-control rounded-0" id="city_add"
+                                                  name="city_add" value="{{dataFor_temp.name}}"
+                                                  placeholder="City/District/Town" autocomplete="off" required>
+
+                                             <label for="city_add">City/District/Town</label>
+                                        </div>
+                                   </div>
+                              </div>
+
+                              <div class="row">
+                                   <div class="col">
+                                        <div class=" form-floating mb-3">
+                                             <textarea class="form-control rounded-0" name="address" id="address"
+                                                  maxlength="500" value="" placeholder="Address" required
+                                                  style="min-height:6rem;"></textarea>
+
+                                             <label for="address">Address</label>
+                                        </div>
+                                   </div>
+                              </div>
+
+                              <div class="row">
+                                   <div class="col">
+                                        <div class=" form-floating mb-3">
+                                             <input type="text" class="form-control rounded-0" id="state_add"
+                                                  name="state_add" value="{{dataFor_temp.name}}" placeholder="State"
+                                                  maxlength="90" autocomplete="off" required>
+
+                                             <label for="state_add">State</label>
+                                        </div>
+                                   </div>
+                                   <div class="col">
+                                        <div class=" form-floating mb-3">
+                                             <input type="tel" class="form-control rounded-0" id="landmark_add"
+                                                  name="landmark_add" value="{{dataFor_temp.name}}"
+                                                  placeholder="Landmark" autocomplete="off">
+
+                                             <label for="landmark_add">Landmark (Optional)</label>
+                                        </div>
+                                   </div>
+                              </div>
+
+                              <div class="btns my-2">
+                                   <button class="btn btn-primary rounded-0 w-25 p-2 mx-2" id="add_frm_sv"
+                                        type="submit">Save</button>
+                                   <a class="btn btn-outline-dark rounded-0 w-25 p-2 mx-2"
+                                        id="deActive_add_Address">Cancel</a>
+                              </div>
+                         </form>
+                    </div>
+                    
+                    <div class="allAddresses mt-3">
+                         {% for item in dataFor_temp %}
+
+                         <div class="card col-auto mx-2 mb-4 w-100">
+                              <div class=" ms-auto position-absolute  " style="right: 0;">
+                                   <button class="action-manu-btn position-relative m-3 border-0 bg-transparent">
+                                        <i class="bi bi-three-dots-vertical "></i>
+                                   </button>
+
+                                   <div class="dropDown d-none position-absolute text-start p-2 d-flex flex-column bg-white m-3"
+                                        style="right: 1.5rem;top: .5rem; width: 5rem; box-shadow: 0px 0px 5px var(--bs-gray-600);">
+
+                                        <a class="addEdit hov_blue py-1" add_id="{{item.id}}">Edit</a>
+
+                                        <a class="hov_blue py-1 dltAdd" add_id="{{item.id}}" >Delete</a>
+                                   </div>
+                              </div>
+
+                              <div class="card-body my-2 w-50">
+                                   <h6 class="card-title ">{{item.name}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{item.mobile}}
+                                   </h6>
+                                   <p class="card-text my-3">{{item.address|title}}, {{item.city}}, {{item.state}} -
+                                        <span class="fw-medium">{{item.pincode}}</span> 
+                                        {% if item.landmark != None%}
+                                        <br><span>{{item.landmark|title}}</span>
+                                             
+                                        {% endif %}
+                                   </p>
+                                   
+                              </div>
+                         </div>
+                         {% endfor %}
+                    </div>
+
+
+
+               </div>
+               {% endif %}
+
+          </div>
+     </section>
+</section>
+<div class=""></div>
+
+{% endblock %}
+
+{% block JS %}
+<script>
+     if ($(".accordion-button").attr("aria-controls") == "collapse1") {
+          accBtn_0 = $(".accordion-button").eq(0)
+          accBtn_0.removeClass("collapsed").attr("aria-expanded", "true")
+          accBtn_0.parent().parent().children().eq(1).addClass("show")
+     }
+
+     $(".acViewLeft_link").removeClass("active")
+     $("#{{ active }}").addClass("active")
+
+     $("#edit_PInf").click(function () {
+          $(this).addClass("d-none")
+          $("#info_frm_Sub").removeClass("d-none")
+          $("#cancel_PInf").removeClass("d-none")
+          $("#info_frm input").prop("disabled", false)
+     })
+     $("#cancel_PInf").click(function () {
+          $(this).addClass("d-none")
+          $("#info_frm_Sub").addClass("d-none")
+          $("#edit_PInf").removeClass("d-none")
+          $("#info_frm input").prop("disabled", true)
+     })
+
+     $("#edit_ac_Inf").click(function () {
+          $(this).addClass("d-none")
+          $("#cancel_ac_Inf").removeClass("d-none")
+          $("#passDiv ").removeClass("d-none")
+     })
+     $("#cancel_ac_Inf").click(function () {
+          $(this).addClass("d-none")
+          $("#edit_ac_Inf").removeClass("d-none")
+          $("#passDiv ").addClass("d-none")
+     })
+
+     // $("#ac_frm").on("submit", function () {
+     //      console.log("odifjhiousdujfjh")
+     //      return false
+
+     // })
+
+
+     $(".action-manu-btn").click(function () {
+          $(this).parent().children().eq(1).toggleClass("d-none")
+          setTimeout(() => {
+               $(this).parent().children().eq(1).addClass("d-none")
+
+          }, 10000);
+     })
+
+     $("#active_add_Address").click(function () {
+          $("#address_frm").removeClass("d-none")
+          $(this).addClass("d-none")
+
+          $("#addr_head_Text").text("Add New Address")
+
+          $("#address_frm input").val("")
+          $("#address_frm textarea").val("")
+
+          $("#address_frm [name='csrfmiddlewaretoken']").val("{{ csrf_token }}")
+
+          $("#addr_frm_use").val("add_n_addr")
+     })
+     $("#deActive_add_Address").click(function () {
+          $("#active_add_Address").removeClass("d-none")
+          $("#address_frm").addClass("d-none")
+         
+     })
+     $(".dltAdd").click(function () {
+          if (confirm("Are you sure you want to delete this address ?")) {
+               location.href = "/deleteAddress/" + $(this).attr("add_id")
+          }
+     })
+
+     $("#address_frm").on("submit", function () {
+          console.log("odifjhiousdujfjh")
+          if($("#address_frm #ph_add").val().length != 10){
+               setAlert("error","Invalid Phone Number !!")
+               return false               
+          }
+          else if($("#address_frm #pincode_add").val().length != 6){
+               setAlert("error","Invalid Pincode !!")
+               return false               
+          }
+          else{
+               return true
+          }
+
+     })
+     $('#address_frm #ph_add').keypress(function (e){
+        var phoneValue = $(this).val();
+        if(phoneValue[0]==0){
+            phoneValue = phoneValue.substring(1);
+        }
+        $(this).val(phoneValue); 
+        
+        if (phoneValue.length >9){
+            e.preventDefault();
+        }
+    })
+     $('#address_frm #pincode_add').keypress(function (e){
+        var pincodeValue = $(this).val();
+        if(pincodeValue[0]==0){
+            phoneValue = phoneValue.substring(1);
+        }
+        $(this).val(pincodeValue); 
+        
+        if (pincodeValue.length >5){
+            e.preventDefault();
+        }
+    })
+
+     $(".addEdit").click(function () {
+          $("#address_frm").removeClass("d-none")
+          $("#addr_head_Text").text("Edit Address")
+
+          $.ajax({
+               type: "POST",
+               url: "/account/addressBook/",
+               data: {
+                    addr_id: $(this).attr("add_id"),
+                    addr_frm_use:"get_edit_addr_edit",
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+               },
+               success: function(data){
+                    if (data.success == true) {  
+                         for (const [key, value] of Object.entries(data.addr)) {
+                              $("#address_frm [name="+key+"]").val(value)
+                              $("#addr_frm_use").val("edit_addr")
+                              $('#address_frm #ph_add').prop("disabled", true)
+                         }   
+                         $(".action-manu-btn").parent().children().eq(1).addClass("d-none")
+
+                    }
+               }
+
+          })
+     })
+</script>
+{% endblock %}

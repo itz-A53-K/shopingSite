@@ -1,0 +1,120 @@
+{% extends 'userModule/base.html' %}
+
+{% block body %}
+<section class="w-100 d-lg-flex align-items-center justify-content-center" style="min-height:86vh;">
+     <div class="regi_frm_Div rounded w-25 border border-secondary" id="regi_frm_div">
+          <h2 class="text-center my-4">Create Account</h2>
+          <p class="err text-danger text-center"></p>
+          <form class="mx-4 my-2" id="regi_frm" action="/register/" method="post">
+               {% csrf_token %}
+
+               <div class="mb-3">
+                    <label for="name" class="form-label fw-medium">Your name</label>
+                    <input type="text" class="form-control" autocomplete="off" id="name" name="name"  placeholder="First and last name" required>
+               </div>
+               <div class="mb-3">
+                    <label for="phone" class="form-label fw-medium">Phone number</label>
+                    <input type="number" class="form-control" autocomplete="off" id="phone" name="phone" placeholder="Phone number" required>
+               </div>
+               <div class="mb-3">
+                    <label for="email" class="form-label fw-medium">Email address</label>
+                    <input type="email" class="form-control" autocomplete="off" id="email" name="email"  placeholder="Email address" required>
+               </div>
+               <div class="mb-3">
+                    <label for="password" class="form-label fw-medium">Password</label>
+                    <input type="password" class="form-control" autocomplete="off" id="password" name="password" placeholder="Password" aria-describedby="passHelp" required>
+                    <div id="passHelp" class="form-text">Passwords must be at least 6 characters.</div>
+               </div>
+               <input type="hidden" name="" id="sot" value="vkmbsr">
+               
+               <button type="submit" class="btn btn-primary w-100 my-2" id="regiContinue" style="height:3rem;">Continue</button>
+
+               <p class="text-center">Already have an account? <a href="/signIn/" class="link-primary link-offset-1 link-underline-opacity-0 link-underline-opacity-100-hover link-hover-warning fw-medium">Sign In</a></p>
+             </form>
+     </div>
+
+     <div class="otp_frm_div rounded w-25 border border-secondary d-none" id="otp_frm_div">
+          <h2 class="text-center my-4">OTP</h2>
+          <p class="text-center m-0 text-success fw-medium">An OTP has been sent to your email.</p>
+          <p class="err text-danger text-center"></p>
+          <form class="mx-4 my-2" id="otp_frm" >
+               <div class="mb-3">
+                    <label for="otp" class="form-label fw-medium">Enter OTP</label>
+                    <input type="number" class="form-control" id="otp" name="otp" placeholder="Enter OTP" required>
+               </div>
+               <button class="btn btn-primary w-100 my-2" id="otp_submit" style="height:3rem;">Submit</button>
+          </form>
+     </div>
+</section>
+{% endblock %}
+
+{% block JS %}
+<script>
+     err= document.querySelectorAll(".err")
+     $("#regi_frm").on( "submit", function( event ) {
+          $("#regiContinue").prop( "disabled", true ).html('<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>')
+          //alert("lfsjkfhdsjsdhfjdfj")
+          if($("#sot").val() == "vkmbsr"){
+               $.ajax({
+                    type: "POST",
+                    url: "/sandOTP/",
+                    data: {
+                         inputEmail:$("#email").val(),
+                         csrfmiddlewaretoken: '{{ csrf_token }}',
+                    },
+                    success: function (data) {
+                         console.log(data)
+                         if(data.success == true){
+                              $("#regi_frm_div").hide()
+                              $("#otp_frm_div").removeClass("d-none")
+                         }
+                         else{
+                              $("#regiContinue").prop( "disabled", false ).html('Continue')
+                              $('html, body').animate({
+                                   scrollTop: $("#regi_frm_div").offset().top
+                              });
+
+                              msg=data.msg
+                              setAlert("error",msg)
+                         }
+                    }
+               })
+               return false
+          }
+          else{
+               return true
+          }
+     })
+
+
+     $("#otp_frm").on( "submit", function( event ) {
+          //alert("lfsjkfhdsjsdhfjdfj")
+          $("#otp_submit").prop( "disabled", true ).html('<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>')
+          
+          $.ajax({
+               type: "POST",
+               url: "/verifyOTP/",
+               data: {
+                    inputEmail:$("#email").val(),
+                    inputOTP:$("#otp").val(),
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+               },
+               success: function (data) {
+                    console.log(data)
+                    if(data.success == true){
+                         $("#sot").val("")
+                         $("#regi_frm").submit()
+                    }
+                    else{
+                         $("#otp_submit").prop( "disabled", false ).html("Submit")
+                         $("#otp").val("")
+
+                         msg=data.msg
+                         setAlert("error",msg)
+                    }
+               }
+          })
+          return false
+     })
+</script>
+{% endblock %}

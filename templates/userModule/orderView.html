@@ -1,0 +1,157 @@
+{% extends 'userModule/base.html' %}
+{% load cust_temp_function %}
+{% load static %}
+{% load humanize %}
+
+{% block css %}
+.accordion-button:not(.collapsed) {
+background: none !important;
+box-shadow: none;
+}
+.accordion-button:focus {
+box-shadow: none;
+}
+
+.deviderLine-2{
+margin:.2rem 0;
+}
+.checkBoxDiv label{
+cursor:pointer;
+user-select:none;
+}
+.productLink .imgDiv{
+height:14rem;
+}
+
+{% endblock %}
+
+{% block title %}Your Order History{% endblock %}
+
+
+{% block body %}
+
+<div class="category mt-2">
+     <nav style="--bs-breadcrumb-divider: '>'; font-size: .9rem;" aria-label="breadcrumb">
+          <ol class="breadcrumb ms-4 mb-0">
+
+               <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+               <li class="breadcrumb-item">
+                    <a href="/account/">Account</a>
+               </li>
+
+               <li class="breadcrumb-item active ms-0" aria-current="page">My Orders</li>
+          </ol>
+     </nav>
+</div>
+<section class="container-fluid p-0 d-flex justify-content-between">
+     <section class="filterSec m-2 rounded bg-light " style="width:20%">
+          <div class="m-2 d-flex flex-column">
+
+               <span class="title">Filters</span>
+               <span class="deviderLine-0"></span>
+
+               <div class="filters">
+                    <div class="accordion d-flex flex-column" id="accordion">
+                         {% for key,value in filters.items %}
+                         <div class="accordion-item" style="border: none;backgrond:none;">
+                              <h2 class="accordion-header">
+                                   <button class="accordion-button collapsed fw-medium" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapse{{forloop.counter}}" aria-expanded="false"
+                                        aria-controls="collapse{{forloop.counter}}">
+                                        {{key|upper}}
+                                   </button>
+                              </h2>
+                              <div id="collapse{{forloop.counter}}" class="accordion-collapse collapse"
+                                   data-bs-parent="#accordion">
+                                   <div class="accordion-body m-2 ms-5 p-0">
+                                        {% comment %} {{value|length}} {% endcomment %}
+                                        {% for i in value %}
+                                        <div class="radioDiv mb-2" >
+                                             <input type="radio" name="orderStatus_radio" id="ordStatus{{forloop.counter}}" class="radioItem" style="cursor: pointer;" value="{{i}}">
+
+                                             <label for="ordStatus{{forloop.counter}}" class="ms-1" style="cursor: pointer;">{{i|title}}</label>
+                                        </div>
+
+                                        {% endfor %}
+                                   </div>
+                              </div>
+                         </div>
+                         <span class="deviderLine-2"></span>
+                         {% endfor %}
+                    </div>
+               </div>
+          </div>
+     </section>
+     <section class="mainBody m-2 rounded bg-light " style="width:80%">
+          <div class="allProds m-4">
+               {% for item in orderView_items %}
+               <a href="{{item.FK_product.id|order_details_href:item.id}}" class="card productLink m-3" style="min-height:6rem;">
+                    <div class="d-flex flex-row flex-wrap w-100 p-2"  >
+                         <div class=" imgDiv" style="height:6rem;width:15%">
+                              
+                              <img src="/media/{{item.FK_product.image}}" alt="" srcset="" width="10rem" class="img-fluid rounded-start " alt="{{i.name}} Image">
+                         </div>
+                         <div class="prodName w-50 " >
+                              <h5 class="card-title"  title="{{item.FK_product.name}}">{{item.FK_product.name|truncatewords:15}}</h5>
+                              <p class="text-secondary">{{item.FK_product.brand_name}}</p>
+                              
+                         </div>
+                         <div class="price" style="width: 13%;">₹{{item.price|floatformat:0|intcomma}}</div>
+                         <div class="status d-flex flex-column fw-medium" style="width: 22%;">
+                              <div>
+                                   <span class="text-{% if item.order_staus == 'cancelled' %}danger{% elif item.order_staus == 'pending'%}warning{% else %}success{% endif %}" >
+                                        {% if item.order_staus == 'cancelled' or item.order_staus == 'delivered' %}
+                                             <i class="bi bi-check-circle-fill"></i>
+                                        {% else %}
+                                             <i class="bi bi-circle-fill"></i>
+                                        {% endif %}
+                                        
+                                   </span> 
+                                   <span>
+                                        {% if item.order_staus == 'cancelled' or item.order_staus == 'delivered' %}
+                                             {{item.order_staus|title}} on {{item.last_modified_date|date:"M d"}}
+                                        {% else %}
+                                             {{item.order_staus|title}}
+                                        {% endif %}
+
+                                   </span>
+                                   
+                              
+                              </div>
+                              
+                         </div>
+
+                    </div>
+               </a>
+               {% endfor %}
+
+          </div>
+     </section>
+</section>
+<div class=""></div>
+
+{% endblock %}
+
+{% block JS %}
+<script>
+     if ($(".accordion-button").attr("aria-controls") == "collapse1") {
+          accBtn_0 = $(".accordion-button").eq(0)
+          accBtn_0.removeClass("collapsed").attr("aria-expanded", "true")
+          accBtn_0.parent().parent().children().eq(1).addClass("show")
+     }
+
+     $(".radioItem").click(function(){
+          location.href = location.href.split("?")[0]+"?order_status="+ $(this).val()
+     })
+     $(document).ready( function(){
+          for( let i=0; i< $(".radioItem").length; i++){
+               
+               item=$(".radioItem").eq(i)
+               if(item.val() == "{{ order_status }}"){
+                    item.prop("checked",true)
+               }
+          }
+     })
+</script>
+{% endblock %}

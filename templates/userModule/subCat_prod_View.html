@@ -1,0 +1,181 @@
+{% extends 'userModule/base.html' %}
+{% load cust_temp_function %}
+{% load static %}
+{% load humanize %}
+
+{% block css %}
+.accordion-button:not(.collapsed) {
+background: none !important;
+box-shadow: none;
+}
+.accordion-button:focus {
+box-shadow: none;
+}
+
+.deviderLine-2{
+margin:.2rem 0;
+}
+.checkBoxDiv label{
+cursor:pointer;
+user-select:none;
+}
+.productLink .imgDiv{
+height:14rem;
+}
+
+{% endblock %}
+
+{% block title %}{{sub_category.subCat_name}}{% endblock %}
+{% block body %}
+
+{% comment %} {% for item in allprod_under_cat %} {% endcomment %}
+
+<section class="container-fluid p-0 d-flex justify-content-between">
+     <section class="filterSec m-2 rounded bg-light " style="width:20%">
+          <div class="m-2 d-flex flex-column">
+
+               <span class="title">Filters</span>
+               <span class="deviderLine-0"></span>
+               <div class="category m-2">
+                    <h6>CATEGORIES</h6>
+                    <nav style="--bs-breadcrumb-divider: '<';" aria-label="breadcrumb">
+                         <ol class="breadcrumb flex-column">
+
+                              <li class="breadcrumb-item"></li>
+
+                              <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+                              <li class="breadcrumb-item"><a href="{{sub_category.FK_product_category.id|category_href:sub_category.FK_product_category.cat_name}}">
+                                   {{sub_category.FK_product_category.cat_name}}
+                              </a>
+                              </li>
+
+                              {% if not sub_category.FK_subcat_type is None %}
+                              <li class="breadcrumb-item"><a href="{{sub_category.FK_subcat_type.id|subCat_type_href:sub_category.FK_subcat_type.type_name}}">{{sub_category.FK_subcat_type.type_name}}</a>
+                              </li>
+                              {% endif %}
+
+                              <li class=" active" aria-current="page">{{sub_category.subCat_name}}</li>
+
+
+                         </ol>
+                    </nav>
+               </div>
+               <span class="deviderLine-2"></span>
+
+               <div class="filters">
+                    <div class="accordion d-flex flex-column" id="accordion">
+                         {% for key,value in filters.items %}
+                         <div class="accordion-item" style="border: none;backgrond:none;">
+                              <h2 class="accordion-header">
+                                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapse{{forloop.counter}}" aria-expanded="false"
+                                        aria-controls="collapse{{forloop.counter}}">
+                                        {{key|upper}}
+                                   </button>
+                              </h2>
+                              <div id="collapse{{forloop.counter}}" class="accordion-collapse collapse"
+                                   data-bs-parent="#accordion">
+                                   <div class="accordion-body m-2 ms-5 p-0">
+                                        {% comment %} {{value|length}} {% endcomment %}
+                                        {% for i in value %}
+                                        <div class="checkBoxDiv mb-2">
+                                             <input type="checkbox" name="brand{{forloop.counter}}"
+                                                  id="brand{{forloop.counter}}">
+                                             <label for="brand{{forloop.counter}}" class="ms-1">{{i|title}}</label>
+                                        </div>
+
+                                        {% endfor %}
+                                   </div>
+                              </div>
+                         </div>
+                         <span class="deviderLine-2"></span>
+                         {% endfor %}
+                    </div>
+               </div>
+          </div>
+     </section>
+     <section class="mainBody m-2 rounded bg-light " style="width:80%">
+          <div class="allProds m-4">
+               {% for i in allprod_under_cat %}
+               <div class="item_of_allProd">
+                    <a href="{{i.id|prod_href:i.name}}" class="card mb-4 productLink"
+                         style="min-height:14rem;" title="{{i.name}}">
+                         <div class="row g-0 ">
+                              <div class="col-md-3 imgDiv">
+                                   <img src="/media/{{i.image}}" class="img-fluid rounded-start "
+                                        alt="{{i.name}} Image">
+                              </div>
+                              <div class="col-md-6">
+                                   <div class="card-body">
+                                        <span class="fw-medium text-secondary">{{i.brand_name}}</span>
+                                        <h4 class="card-title">{{i.name|truncatewords:10}}</h4>
+                                        <div class="descriptions card-text">
+                                             <ul>
+                                                  {% if i.description_summary != null %}
+                                                  
+                                                  {% for item in i.description_summary %}
+                                                  <li class="mb-2">{{item}}</li>
+                                                  {% endfor %}
+                                                  {% endif %}
+                                             </ul>
+                                        </div>
+
+                                   </div>
+                              </div>
+                              <div class="col-md-3 ">
+                                   {% comment %} d-flex flex-column justify-content-center {% endcomment %}
+                                   <div class="my-4">
+
+                                        {% if i.discount_parcent != 0 %}
+                                        <p class="m-0">
+
+                                             <span class="fs-4 fw-medium">&nbsp;₹
+                                                  {{i.discount_parcent|off_price:i.price|intcomma}}</span>
+                                        </p>
+                                        <p class="originalPrice text-secondary m-0">
+                                             <span class="text-decoration-line-through "
+                                                  style="text-decoration-color: !important ">₹ {{i.price|floatformat:0|intcomma}}</span>
+
+                                             <span class="text-success opacity-1 fw-medium fs-5">{{i.discount_parcent}}%
+                                                  off</span>
+                                        </p>
+                                        {% if i.discount_parcent|off_price:i.price > 1000 %}
+                                        <p class="m-0">
+                                             <span class="">Free Delivery</span>
+                                        </p>
+                                        {% endif %}
+                                        {% else %}
+                                        <p class="m-0">
+                                             <span class="fs-4 fw-medium">&nbsp;₹ {{i.price|floatformat:0|intcomma}}</span>
+                                        </p>
+                                        {% if i.price > 1000 %}
+                                        <p class="m-0">
+                                             <span class="">Free Delivery</span>
+                                        </p>
+                                        {% endif %}
+                                        {% endif %}
+
+
+                                   </div>
+                              </div>
+                         </div>
+                    </a>
+               </div>
+               {% endfor %}
+          </div>
+     </section>
+</section>
+<div class=""></div>
+
+{% endblock %}
+
+{% block JS %}
+<script>
+     if ($(".accordion-button").attr("aria-controls") == "collapse1") {
+          accBtn_0 = $(".accordion-button").eq(0)
+          accBtn_0.removeClass("collapsed").attr("aria-expanded", "true")
+          accBtn_0.parent().parent().children().eq(1).addClass("show")
+     }
+</script>
+{% endblock %}

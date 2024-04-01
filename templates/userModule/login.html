@@ -1,0 +1,37 @@
+{% extends 'userModule/base.html' %}
+
+{% block body %}
+<section class="w-100 d-lg-flex align-items-center justify-content-center" style="min-height:86vh;">
+     <div class="log_frm_Div rounded w-25 border border-secondary" id="log_frm_div">
+          <h2 class="text-center my-4">Sign In</h2>
+          <form class="mx-4 my-2" id="log_frm" method="post" action="/signIn/">
+               {% csrf_token %}
+
+               {% for  field in login_form %}
+               <div class="mb-3">
+                    {{field.label_tag}}
+                    {{field}}
+               </div>
+               {% endfor %}
+               {% comment %} <div class="mb-3">
+                    <label for="password" class="form-label fw-medium ">Password</label>
+                    <input type="password" class="form-control" id="password" name="password"  placeholder="Password">
+               </div> {% endcomment %}
+               
+               <button type="submit" class="btn btn-primary w-100 my-2">Login</button>
+
+               <p class="text-center">New here? <a href="/register/" class="link-primary link-offset-1 link-underline-opacity-0 link-underline-opacity-100-hover link-hover-warning fw-medium">Create an account</a></p>
+             </form>
+     </div>
+</section>
+{% endblock %}
+
+{% block JS %}
+<script>
+     $(document).ready(function(){
+          $("#log_frm input").addClass("form-control")
+          $("#log_frm #id_email").prop("placeholder","Email Address")
+          $("#log_frm label").addClass("form-label fw-medium")
+     })
+</script>
+{% endblock %}
