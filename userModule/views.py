@@ -5,13 +5,14 @@ from django.contrib.auth import login,logout,authenticate
 from django.core.mail import send_mail
 from django.db.models import Q
 from django.core import serializers
+from django.conf import settings
 
 from .models import *
 from .functions import *
 from .forms import *
 from math import ceil
 
-import random, requests
+import random, requests, os
 
 
 siteName="siteName"
@@ -21,11 +22,24 @@ def home(request):
     
     manJeans= product.objects.filter(FK_product_sub_category= 9)[:20]
     msk= product.objects.filter()
-    topDealProd=[ msk]
+    # topDealProd=[ msk]
+    topDealProd=[]
 
     bestElectronics= product_subCategory.objects.filter(Q(FK_product_category=3) | Q(FK_product_category=1) )[0:10]
+
+    # offer slide image extract
+    IMAGE_FOLDER = os.path.join(settings.MEDIA_ROOT, "offerSlide_Img")
+    offerSlide_img_paths = []
+
+    for filename in os.listdir(IMAGE_FOLDER):
+        offerSlide_img_paths.append(os.path.join("offerSlide_Img", filename))
+
+    # end of offer slide img extract
+
+    print(topDealProd)
     
-    params={"topDealProd": list(topDealProd), "manJeans":list(manJeans), "cartCount":cartCount(request.user.id), "bestElectronics":list(bestElectronics), "nav2_items":nav2_items()}
+    params={"offerSlide_img_paths":offerSlide_img_paths,"topDealProd": list(topDealProd), "manJeans":list(manJeans), "cartCount":cartCount(request.user.id), "bestElectronics":list(bestElectronics), "nav2_items":nav2_items()}
+
     return render(request,usr+'/index.html', params)
 
 
