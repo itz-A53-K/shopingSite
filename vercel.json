@@ -1,13 +1,13 @@
 {
     "builds":[{
-        "src": "SHOPINGSITE/wsgi.py",
+        "src": "shopingSite/wsgi.py",
         "use":"@vercel/python",
         "config": {"maxLambdaSize" :"15mb","runtime":"python3.12"}
     }],
     "routes": [
         {
             "src": "/(.*)",
-            "dest" : "SHOPINGSITE/wsgi.py"
+            "dest" : "shopingSite/wsgi.py"
         }
     ]
 }
